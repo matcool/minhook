@@ -34,6 +34,10 @@
 #include "buffer.h"
 #include "trampoline.h"
 
+#include "hook.h"
+
+#define MAT_CXX_IMPL
+
 #ifndef ARRAYSIZE
     #define ARRAYSIZE(A) (sizeof(A)/sizeof((A)[0]))
 #endif
@@ -461,7 +465,7 @@ static MH_STATUS EnableAllHooksLL(BOOL enable)
 }
 
 //-------------------------------------------------------------------------
-static VOID EnterSpinLock(VOID)
+VOID EnterSpinLock(VOID)
 {
     SIZE_T spinCount = 0;
 
@@ -482,7 +486,7 @@ static VOID EnterSpinLock(VOID)
 }
 
 //-------------------------------------------------------------------------
-static VOID LeaveSpinLock(VOID)
+VOID LeaveSpinLock(VOID)
 {
     // No need to generate a memory barrier here, since InterlockedExchange()
     // generates a full memory barrier itself.
@@ -491,6 +495,7 @@ static VOID LeaveSpinLock(VOID)
 }
 
 //-------------------------------------------------------------------------
+#ifndef MAT_CXX_IMPL
 MH_STATUS WINAPI MH_Initialize(VOID)
 {
     MH_STATUS status = MH_OK;
@@ -863,6 +868,7 @@ MH_STATUS WINAPI MH_ApplyQueued(VOID)
 
     return status;
 }
+#endif
 
 //-------------------------------------------------------------------------
 MH_STATUS WINAPI MH_CreateHookApiEx(

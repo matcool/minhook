@@ -25,8 +25,9 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 3.0)
+set(CMAKE_CXX_STANDARD 17)
 
-project(minhook LANGUAGES C)
+project(minhook LANGUAGES C CXX)
 
 include(CMakePackageConfigHelpers)
 
@@ -36,31 +37,31 @@ set(MINHOOK_PATCH_VERSION 3)
 set(MINHOOK_VERSION ${MINHOOK_MAJOR_VERSION}.${MINHOOK_MINOR_VERSION}.${MINHOOK_PATCH_VERSION})
 
 ################
-#    BUILD     # 
+#    BUILD     #
 ################
 
 option(BUILD_SHARED_LIBS "build shared version" OFF)
+set(BUILD_SHARED_LIBS ON)
 
-set(SOURCES_MINHOOK 
-  "src/buffer.c"
+set(SOURCES_MINHOOK
+  "src/mat.cpp"
   "src/hook.c"
-  "src/trampoline.c"
 )
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(SOURCES_HDE "src/hde/hde64.c")
-else()
-  set(SOURCES_HDE "src/hde/hde32.c")
-endif()
+# if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+#   set(SOURCES_HDE "src/hde/hde64.c")
+# else()
+#   set(SOURCES_HDE "src/hde/hde32.c")
+# endif()
 
 if(BUILD_SHARED_LIBS)
-  set(RESOURCES 
+  set(RESOURCES
     "dll_resources/minhook.rc"
     "dll_resources/minhook.def"
   )
 endif()
 
-add_library(minhook ${SOURCES_MINHOOK} ${SOURCES_HDE} ${RESOURCES})
+add_library(minhook SHARED ${SOURCES_MINHOOK} ${SOURCES_HDE} ${RESOURCES})
 
 target_include_directories(minhook PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
@@ -72,7 +73,7 @@ target_include_directories(minhook PRIVATE "src/hde/")
 
 if(WIN32)
   set_target_properties(minhook PROPERTIES PREFIX "")
-  if(CMAKE_SIZEOF_VOID_P EQUAL 8)   
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set_target_properties(minhook PROPERTIES DEBUG_POSTFIX ".x64d")
     set_target_properties(minhook PROPERTIES RELEASE_POSTFIX ".x64")
     set_target_properties(minhook PROPERTIES RELWITHDEBINFO_POSTFIX ".x64")
@@ -90,29 +91,29 @@ else()
 endif()
 
 ################
-# CMAKE CONFIG # 
+# CMAKE CONFIG #
 ################
 
 configure_package_config_file(
     "cmake/minhook-config.cmake.in"
     "minhook-config.cmake"
-  INSTALL_DESTINATION 
+  INSTALL_DESTINATION
     "lib/minhook"
 )
 
 write_basic_package_version_file(
   "minhook-config-version.cmake"
-VERSION 
+VERSION
   ${MINHOOK_VERSION}
 COMPATIBILITY
   AnyNewerVersion
 )
 
 install(
-  FILES 
+  FILES
     "${CMAKE_CURRENT_BINARY_DIR}/minhook-config.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/minhook-config-version.cmake"
-  DESTINATION 
+  DESTINATION
     "lib/minhook"
 )
 
@@ -130,9 +131,9 @@ install(TARGETS minhook
 install(
   EXPORT
     minhook-targets
-  NAMESPACE 
+  NAMESPACE
     minhook::
-  DESTINATION 
+  DESTINATION
     "lib/minhook"
 )
 
