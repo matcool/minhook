@@ -235,7 +235,7 @@ extern "C" {
         
         *original = VirtualAlloc(nullptr, 1, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
         patch(*original, {0xCC});
-        hook.detours.push_back(Detour {
+        hook.detours.insert(hook.detours.begin(), Detour {
             target, detour, *original, false
         });
         state.trampolines[*original] = &hook;
